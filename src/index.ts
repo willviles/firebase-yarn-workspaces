@@ -18,19 +18,6 @@ try {
   process.exit(1)
 }
 
-async function getYarnWorkspacesInfo () {
-  try {
-    const { stdout } = await execa('yarn', ['workspaces', 'info'], { cwd: argv.dir })
-    // Replace any text outside of workspace info parentheses
-    const info = stdout.replace(/^[^{]*/, '').replace(/[^}]+$/, '')
-    console.info(info)
-    return JSON.parse(info)
-  } catch (err) {
-    console.error(err)
-    throw new Error('Not in a Yarn Workspace')
-  }
-}
-
 interface WorkspaceInfo {
   location: string
   workspaceDependencies: string[]
@@ -40,6 +27,18 @@ interface WorkspaceInfo {
 
 interface WorkspacesInfo {
   [key: string]: WorkspaceInfo
+}
+
+async function getYarnWorkspacesInfo () {
+  try {
+    const { stdout } = await execa('yarn', ['workspaces', 'info'], { cwd: argv.dir })
+    // Replace any text outside of workspace info parentheses
+    const info = stdout.replace(/^[^{]*/, '').replace(/[^}]+$/, '')
+    return JSON.parse(info)
+  } catch (err) {
+    console.error(err)
+    throw new Error('Not in a Yarn Workspace')
+  }
 }
 
 try {
@@ -79,13 +78,8 @@ try {
     throw new Error('No dependent workspaces found. You may not need to use this package.')
   }
 
-  const allWorkspaces = {
-    [argv.scope]: firebaseWorkspace,
-    ...dependentWorkspaces
-  }
-
   // Ensure tmp dir exists
-  await fs.ensureDirSync(tmpDirPath)
+  await fs.ensureDir(tmpDirPath)
 
   // Copy all dependency workspaces to tmp
   await Promise.all(
@@ -93,7 +87,7 @@ try {
       const src = path.join(argv.dir, workspaceInfo.location)
       const dest = path.join(tmpDirPath, name)
       await fs.ensureDir(dest)
-      return fs.copy(src, dest)
+      return await fs.copy(src, dest)
     })
   )
 
@@ -116,7 +110,7 @@ try {
       }
     }
 
-    return fs.writeJson(packageJsonPath, packageJson, { spaces: 2, EOL: '\n' })
+    return await fs.writeJson(packageJsonPath, packageJson, { spaces: 2, EOL: '\n' })
   }
 
   await Promise.all([
