@@ -8,7 +8,7 @@ import fs from 'fs-extra'
 const argv = await yargs(hideBin(process.argv)).options({
   dir: { alias: 'd', type: 'string', default: process.cwd() },
   scope: { alias: 's', type: 'string' },
-  tmpDir: { type: 'string', default: '.firebase-yarn-workspaces' }
+  tmpDir: { alias: 't', type: 'string', default: '.firebase-yarn-workspaces' }
 }).argv
 
 try {
@@ -21,8 +21,12 @@ try {
 async function getYarnWorkspacesInfo () {
   try {
     const { stdout } = await execa('yarn', ['workspaces', 'info'], { cwd: argv.dir })
-    return JSON.parse(stdout)
+    // Replace any text outside of workspace info parentheses
+    const info = stdout.replace(/^[^{]*/, '').replace(/[^}]+$/, '')
+    console.info(info)
+    return JSON.parse(info)
   } catch (err) {
+    console.error(err)
     throw new Error('Not in a Yarn Workspace')
   }
 }
