@@ -32,15 +32,21 @@ This command, run at the root of your monorepo:
 
 ### Local pruned Turborepo
 
-A simple shell script to prune & build your Turborepo into a clean `/out` dir, before installing, linking packages and deploying.
+A simple shell script, which:
+
+- Prunes & builds your Turborepo into a clean `/out` dir
+- Installs dependencies
+- Copies & links packages via relative file path replacement in package.json
+- Deploys to Firebase
 
 ```bash
 #!/bin/sh
 cd $PATH_TO_TURBOREPO_ROOT
 
-echo 'Creating a Turbo pruned repo'
+echo 'Creating a pruned Turborepo'
+yarn turbo prune --scope=$FUNCTIONS_PACKAGE_NAME
 
-yarn turbo prune --scope=functions
+echo 'Copying Firebase config'
 cp ./{.firebaserc,firebase.json} ./out
 
 cd ./out
