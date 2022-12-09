@@ -64,7 +64,7 @@ echo 'Deploying'
 firebase deploy --force --only functions
 
 echo 'Cleaning up ./out folder'
-rm -Rf ./out
+rm -Rf ../out
 ```
 
 ### More examples soon:
