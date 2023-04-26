@@ -53,26 +53,9 @@ try {
   const firebaseWorkspaceDirPath = path.join(argv.dir, firebaseWorkspace.location)
   const tmpDirPath = path.join(firebaseWorkspaceDirPath, argv.tmpDir)
 
-  function findDependencies (name: string, obj = {}): WorkspacesInfo {
-    const workspaceInfo = workspacesInfo[name]
-
-    for (const workspaceName of workspaceInfo.workspaceDependencies) {
-      if (!!obj[workspaceName]) {
-        continue
-      } else {
-        obj[workspaceName] = {
-          ...workspacesInfo[workspaceName]
-        }
-        obj = {
-          ...findDependencies(name, obj)
-        }
-      }
-    }
-
-    return obj
-  }
-
-  const dependentWorkspaces = findDependencies(argv.scope)
+  // Take all workspaces except the scoped one
+  const dependentWorkspaces = Object.assign({}, workspacesInfo)
+  delete dependentWorkspaces[argv.scope];
 
   if (!Object.keys(dependentWorkspaces).length) {
     throw new Error('No dependent workspaces found. You may not need to use this package.')
