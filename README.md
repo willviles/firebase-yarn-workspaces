@@ -1,5 +1,7 @@
 # firebase-yarn-workspaces
 
+*** ⚠️ **This project is now archived. Please consider using [isolate-package](https://github.com/0x80/isolate-package) instead.** ***
+
 Yarn workspaces + Firebase deployments made easy.
 
 ## Problem
